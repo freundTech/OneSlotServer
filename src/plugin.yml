@@ -1,0 +1,4 @@
+name: OneSlotServer
+main: freundtech.bukkit.oneslotserver.OneSlotServer
+version: 1.0
+commands:
