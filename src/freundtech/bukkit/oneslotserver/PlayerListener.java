@@ -8,12 +8,14 @@ import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.TimeZone;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerAchievementAwardedEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerLoginEvent.Result;
@@ -34,8 +36,10 @@ public class PlayerListener implements Listener {
 		this.plugin = plugin;
 
 		minutesWait = new SimpleDateFormat("mm:ss");
+		minutesWait.setTimeZone(TimeZone.getTimeZone("GMT"));
 		hoursWait = new SimpleDateFormat("kk:mm");
-
+		hoursWait.setTimeZone(TimeZone.getTimeZone("GMT"));
+		
 		try {
 			iconEmpty = Bukkit.loadServerIcon(Paths.get(plugin.getDataFolder().toString(), "icon-empty.png").toFile());
 			iconFull = Bukkit.loadServerIcon(Paths.get(plugin.getDataFolder().toString(), "icon-full.png").toFile());
@@ -56,7 +60,8 @@ public class PlayerListener implements Listener {
 			playerinfo.timeleft = 30 * 60;
 		}
 		if (playerinfo.timeleft <= 0 && !event.getPlayer().isOp()) {
-			long waitleft = ((24 * 60 * 60) - (now.getTime() / 1000 - playerinfo.firstJoin) - (60 * 60)) * 1000;
+			long waitleft = ((24 * 60 * 60) - (now.getTime() / 1000 - playerinfo.firstJoin)) * 1000;
+
 			Date date = new Date(waitleft);
 			String timestring = hoursWait.format(date);
 
@@ -113,14 +118,15 @@ public class PlayerListener implements Listener {
 
 			int minutes = plugin.activePlayer.timeleft / 60;
 
-			Bukkit.broadcastMessage("Welcome on the one slot server.");
+			Bukkit.broadcastMessage("Welcome to the one slot server.");
 			Bukkit.broadcastMessage("You have " + minutes + " minutes left to play.");
 			Bukkit.broadcastMessage("Read the full server rules here:");
+			Bukkit.broadcastMessage("http://www.minecraftforum.net/forums/minecraft-discussion/survival-mode/2514894-oneslotserver-social-experiment");
 		}
 	}
 
 	@EventHandler
-	public void onPlayerQuit(PlayerQuitEvent event) {
+	public void onPlayerQuit(final PlayerQuitEvent event) {
 		event.setQuitMessage(null);
 		if (plugin.activePlayer != null) {
 			if (event.getPlayer().getUniqueId().toString().equals(plugin.config.getString("activePlayer"))) {
@@ -176,6 +182,13 @@ public class PlayerListener implements Listener {
 		else {
 			event.setMotd("Nobody is playing. You can join the server.");
 			event.setServerIcon(iconEmpty);
+		}
+	}
+	
+	@EventHandler
+	public void onPlayerAchievementAwarded(PlayerAchievementAwardedEvent event) {
+		if(!event.getPlayer().getUniqueId().equals(plugin.activePlayer.player.getUniqueId())) {
+			event.setCancelled(true);
 		}
 	}
 }
