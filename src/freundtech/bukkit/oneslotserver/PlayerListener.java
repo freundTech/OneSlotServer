@@ -108,6 +108,7 @@ public class PlayerListener implements Listener {
 				&& event.getPlayer().isOp()) {
 			plugin.activePlayer.player.hidePlayer(event.getPlayer());
 			event.getPlayer().setGameMode(GameMode.SPECTATOR);
+			event.getPlayer().setSleepingIgnored(true);
 		}
 		if (plugin.activePlayer.player.getUniqueId().equals(event.getPlayer().getUniqueId())) {
 			for (Player player : plugin.getServer().getOnlinePlayers()) {
@@ -115,13 +116,15 @@ public class PlayerListener implements Listener {
 					plugin.activePlayer.player.hidePlayer(player);
 				}
 			}
+			
+			event.getPlayer().setSleepingIgnored(false);
 
 			int minutes = plugin.activePlayer.timeleft / 60;
 
 			Bukkit.broadcastMessage("Welcome to the one slot server.");
 			Bukkit.broadcastMessage("You have " + minutes + " minutes left to play.");
 			Bukkit.broadcastMessage("Read the full server rules here:");
-			Bukkit.broadcastMessage("http://www.minecraftforum.net/forums/minecraft-discussion/survival-mode/2514894-oneslotserver-social-experiment");
+			Bukkit.broadcastMessage("https://redd.it/3j22hq");
 		}
 	}
 
