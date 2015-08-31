@@ -29,7 +29,7 @@ public class TickHandler implements Runnable {
 			Playerinfo player = plugin.activePlayer;
 
 			if (player.timeleft - (now.getTime() / 1000 - player.joinedAt) <= 0) {
-				long waitleft = ((24 * 60 * 60) - (now.getTime()/1000 - player.firstJoin)) * 1000;
+				long waitleft = (plugin.pausetime - (now.getTime()/1000 - player.firstJoin)) * 1000;
 				Date date = new Date(waitleft);
 				String timestring = hoursWait.format(date);
 				

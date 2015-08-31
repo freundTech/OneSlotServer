@@ -27,7 +27,7 @@ public class Playerinfo {
 		this.player = player;
 		this.joinedAt = new Date().getTime()/1000;
 		this.firstJoin = userconfig.getLong("first_join", this.joinedAt);
-		this.timeleft = userconfig.getInt("time_left", 1800);
+		this.timeleft = userconfig.getInt("time_left", plugin.playtime);
 	}
 	
 	public void save() {

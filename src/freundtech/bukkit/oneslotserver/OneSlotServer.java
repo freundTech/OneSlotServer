@@ -17,6 +17,9 @@ public class OneSlotServer extends JavaPlugin {
 
 	public FileConfiguration config = this.getConfig();
 	public Playerinfo activePlayer;
+	
+	public int playtime;
+	public int pausetime;
 
 	@Override
 	public void onEnable() {
@@ -43,6 +46,8 @@ public class OneSlotServer extends JavaPlugin {
 		this.getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
 		this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new TickHandler(this), 20, 20);
 
+		config.addDefault("playtime", 1800);
+		config.addDefault("pausetime", 86400);
 		config.addDefault("activePlayer", "");
 		config.options().copyDefaults(true);
 		this.saveConfig();

@@ -55,12 +55,12 @@ public class PlayerListener implements Listener {
 
 		Playerinfo playerinfo = new Playerinfo(event.getPlayer(), plugin);
 
-		if (playerinfo.firstJoin < now.getTime() / 1000 - (24 * 60 * 60)) {
+		if (playerinfo.firstJoin < now.getTime() / 1000 - plugin.pausetime) {
 			playerinfo.firstJoin = now.getTime() / 1000;
-			playerinfo.timeleft = 30 * 60;
+			playerinfo.timeleft = plugin.playtime;
 		}
 		if (playerinfo.timeleft <= 0 && !event.getPlayer().isOp()) {
-			long waitleft = ((24 * 60 * 60) - (now.getTime() / 1000 - playerinfo.firstJoin)) * 1000;
+			long waitleft = (plugin.pausetime - (now.getTime() / 1000 - playerinfo.firstJoin)) * 1000;
 
 			Date date = new Date(waitleft);
 			String timestring = hoursWait.format(date);
