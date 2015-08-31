@@ -1,0 +1,11 @@
+# Binaries
+bin/
+
+# IDEs
+eclipse/
+.classpath
+.metadata/
+.project
+.settings
+.idea/
+*.iml
