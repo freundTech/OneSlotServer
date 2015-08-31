@@ -21,7 +21,7 @@ public class Playerinfo {
 	
 	
 	public Playerinfo(Player player, OneSlotServer plugin) {		
-		configpath = Paths.get(plugin.getDataFolder().getAbsolutePath(), "players", player.getUniqueId().toString());
+		configpath = Paths.get(plugin.getDataFolder().getAbsolutePath(), "players", player.getUniqueId().toString() + ".yml");
 		userconfig = YamlConfiguration.loadConfiguration(configpath.toFile());
 		
 		this.player = player;
