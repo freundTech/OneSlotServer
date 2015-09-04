@@ -17,7 +17,7 @@ public class TickHandler implements Runnable {
 		this.plugin = plugin;
 		timeLeft = new SimpleDateFormat("mm:ss");
 		timeLeft.setTimeZone(TimeZone.getTimeZone("GMT"));
-		hoursWait = new SimpleDateFormat("kk:mm");
+		hoursWait = new SimpleDateFormat("HH:mm");
 		hoursWait.setTimeZone(TimeZone.getTimeZone("GMT"));
 
 	}

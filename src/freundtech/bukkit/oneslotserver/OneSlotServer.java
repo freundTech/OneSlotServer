@@ -17,7 +17,7 @@ public class OneSlotServer extends JavaPlugin {
 
 	public FileConfiguration config = this.getConfig();
 	public Playerinfo activePlayer;
-	
+
 	public int playtime;
 	public int pausetime;
 
@@ -51,6 +51,9 @@ public class OneSlotServer extends JavaPlugin {
 		config.addDefault("activePlayer", "");
 		config.options().copyDefaults(true);
 		this.saveConfig();
+
+		this.playtime = config.getInt("playtime");
+		this.pausetime = config.getInt("pausetime");
 
 		String uuid = config.getString("activePlayer", "");
 		if (!uuid.equals("")) {

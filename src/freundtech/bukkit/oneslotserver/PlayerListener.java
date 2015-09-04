@@ -37,7 +37,7 @@ public class PlayerListener implements Listener {
 
 		minutesWait = new SimpleDateFormat("mm:ss");
 		minutesWait.setTimeZone(TimeZone.getTimeZone("GMT"));
-		hoursWait = new SimpleDateFormat("kk:mm");
+		hoursWait = new SimpleDateFormat("HH:mm");
 		hoursWait.setTimeZone(TimeZone.getTimeZone("GMT"));
 		
 		try {
