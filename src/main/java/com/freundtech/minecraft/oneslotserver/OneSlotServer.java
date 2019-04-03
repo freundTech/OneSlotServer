@@ -1,4 +1,4 @@
-package freundtech.bukkit.oneslotserver;
+package com.freundtech.minecraft.oneslotserver;
 
 import java.io.IOException;
 import java.io.InputStream;

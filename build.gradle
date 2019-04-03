@@ -1,0 +1,22 @@
+plugins {
+    id 'java'
+}
+
+group 'com.freundtech.minecraft'
+version '1.0-SNAPSHOT'
+
+repositories {
+    maven {
+        url "https://hub.spigotmc.org/nexus/content/groups/public/"
+    }
+    maven {
+        url "https://oss.sonatype.org/content/groups/public/"
+    }
+}
+
+dependencies {
+    compileOnly "org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT"
+}
+
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'

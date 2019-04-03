@@ -1,5 +1,6 @@
 # Binaries
 bin/
+build/
 
 # IDEs
 eclipse/
@@ -9,3 +10,6 @@ eclipse/
 .settings
 .idea/
 *.iml
+
+# Gradle wrapper
+.gradle
