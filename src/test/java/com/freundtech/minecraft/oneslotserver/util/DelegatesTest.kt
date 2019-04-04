@@ -18,6 +18,15 @@ class YamlConfigurationDelegatorTest {
         val test by config.delegate("test", 5)
 
         assertEquals(5, test)
+        assertEquals(5, config.get("test"))
+    }
+
+    @Test
+    fun getDefaultNoWriteTest() {
+        val test by config.delegate("test", 5, writeDefault = false)
+
+        assertEquals(5, test)
+        assertEquals(null, config.get("test", null))
     }
 
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE", "UNUSED_VALUE")

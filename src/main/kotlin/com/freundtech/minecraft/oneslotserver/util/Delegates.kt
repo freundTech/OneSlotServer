@@ -3,9 +3,13 @@ package com.freundtech.minecraft.oneslotserver.util
 import org.bukkit.configuration.ConfigurationSection
 import kotlin.reflect.KProperty
 
-class ConfigurationSectionDelegate<T>(val config: ConfigurationSection, val name: String, default: T) {
-    @Suppress("UNCHECKED_CAST")
-    private var value: T = config.get(name, default) as? T ?: default
+class ConfigurationSectionDelegate<T>(private val config: ConfigurationSection, private val name: String) {
+    private var value: T;
+
+    init {
+        @Suppress("UNCHECKED_CAST")
+        value = config.get(name) as T
+    }
 
     operator fun getValue(thisRef: Any?, property: KProperty<*>): T {
         return value
@@ -17,7 +21,19 @@ class ConfigurationSectionDelegate<T>(val config: ConfigurationSection, val name
     }
 }
 
-fun <T> ConfigurationSection.delegate(name: String, default: T): ConfigurationSectionDelegate<T> {
-    return ConfigurationSectionDelegate(this, name, default)
+fun <T> ConfigurationSection.delegate(name: String, default: T, writeDefault: Boolean = true): ConfigurationSectionDelegate<T> {
+    if (writeDefault) {
+        if (this.get(name, null) == null) {
+            this.set(name, default)
+        }
+    }
+    else {
+        this.addDefault(name, default)
+    }
+    return ConfigurationSectionDelegate(this, name)
+}
+
+fun <T> ConfigurationSection.delegate(name: String): ConfigurationSectionDelegate<T> {
+    return ConfigurationSectionDelegate(this, name)
 }
 

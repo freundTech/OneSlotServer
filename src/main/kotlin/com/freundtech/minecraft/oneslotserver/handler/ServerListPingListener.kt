@@ -1,14 +1,14 @@
 package com.freundtech.minecraft.oneslotserver.handler
 
 import com.freundtech.minecraft.oneslotserver.OneSlotServer
-import com.freundtech.minecraft.oneslotserver.playerInfo
+import com.freundtech.minecraft.oneslotserver.extension.oneSlotServer
 import com.freundtech.minecraft.oneslotserver.util.currentTime
-import com.freundtech.minecraft.oneslotserver.util.minutesWait
+import com.freundtech.minecraft.oneslotserver.util.format
+import com.freundtech.minecraft.oneslotserver.util.minutesFormat
 import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.server.ServerListPingEvent
-import java.util.*
 
 class ServerListPingListener : Listener{
     private val plugin = OneSlotServer.instance
@@ -25,11 +25,9 @@ class ServerListPingListener : Listener{
         }
 
         plugin.activePlayer?.let {
-            val waitLeft = (it.playerInfo.timeLeft - (currentTime() - it.playerInfo.joinedAt))
-            val date = Date(waitLeft * 1000)
-            val timeString = minutesWait.format(date)
+            val waitLeft = (it.oneSlotServer.timeLeft - (currentTime() - it.oneSlotServer.joinedAt))
 
-            event.motd = "A player is currently playing. Please wait $timeString more minutes."
+            event.motd = "A player is currently playing. Please wait ${waitLeft.format(minutesFormat)} more minutes."
             event.setServerIcon(iconFull)
         } ?: run {
             event.motd = "Nobody is playing. You can join the server."

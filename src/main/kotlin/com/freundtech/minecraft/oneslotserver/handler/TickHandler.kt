@@ -1,10 +1,10 @@
 package com.freundtech.minecraft.oneslotserver.handler
 
 import com.freundtech.minecraft.oneslotserver.OneSlotServer
-import com.freundtech.minecraft.oneslotserver.playerInfo
-import com.freundtech.minecraft.oneslotserver.util.currentTime
-import com.freundtech.minecraft.oneslotserver.util.hoursWait
-import com.freundtech.minecraft.oneslotserver.util.minutesWait
+import com.freundtech.minecraft.oneslotserver.extension.oneSlotServer
+import com.freundtech.minecraft.oneslotserver.extension.saveToSharedData
+import com.freundtech.minecraft.oneslotserver.extension.setSpectator
+import com.freundtech.minecraft.oneslotserver.util.*
 import org.bukkit.GameMode
 import java.util.*
 
@@ -14,20 +14,31 @@ class TickHandler : Runnable {
     override fun run() {
         val now = currentTime()
 
+        var headerMessage = "No player playing"
+
         plugin.activePlayer?.let {
-            if (it.playerInfo.timeLeft - (now - it.playerInfo.joinedAt) <= 0) {
-                val waitLeft = (plugin.pauseTime - (now - it.playerInfo.firstJoin))
-                val date = Date(waitLeft * 1000)
+            if (it.oneSlotServer.timeLeft - (now - it.oneSlotServer.joinedAt) <= 0) {
+                val waitLeft = (plugin.pauseTime - (now - it.oneSlotServer.firstJoin))
+                val kickMessage = "Time is up. You can play again in ${waitLeft.format(hoursFormat)} hours."
+                if (!it.hasPermission(PERMISSION_SPECTATE)) {
 
-                it.kickPlayer("Time is up. You can play again in ${hoursWait.format(date)} hours.")
+                    it.kickPlayer(kickMessage)
+                }
+                else {
+                    it.sendMessage(kickMessage)
+                    it.saveToSharedData()
+                    it.setSpectator()
+                    plugin.activePlayer = null
+                }
             }
-
-            if (it.gameMode != GameMode.SPECTATOR) {
-                val timeLeft = (it.playerInfo.timeLeft - (now - it.playerInfo.joinedAt))
-                val date = Date(timeLeft * 1000)
-
-                it.setPlayerListName("${minutesWait.format(date)} left")
+            else {
+                val timeLeft = (it.oneSlotServer.timeLeft - (now - it.oneSlotServer.joinedAt))
+                headerMessage = "${timeLeft.format(minutesFormat)} minutes left"
             }
+        }
+
+        plugin.server.onlinePlayers.forEach {
+            it.playerListHeader = headerMessage
         }
     }
 }

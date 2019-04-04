@@ -1,5 +1,0 @@
-name: OneSlotServer
-version: ${project.version}
-main: com.freundtech.minecraft.oneslotserver.OneSlotServer
-api-version: 1.13
-authors: [freundTech]

@@ -1,6 +1,7 @@
 # Binaries
 bin/
 build/
+out/
 
 # IDEs
 eclipse/

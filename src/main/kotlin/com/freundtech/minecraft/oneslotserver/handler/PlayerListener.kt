@@ -1,16 +1,14 @@
 package com.freundtech.minecraft.oneslotserver.handler
 
 import com.freundtech.minecraft.oneslotserver.OneSlotServer
-import com.freundtech.minecraft.oneslotserver.PlayerInfo
-import com.freundtech.minecraft.oneslotserver.playerInfo
+import com.freundtech.minecraft.oneslotserver.extension.loadFromSharedData
+import com.freundtech.minecraft.oneslotserver.extension.oneSlotServer
+import com.freundtech.minecraft.oneslotserver.extension.saveToSharedData
+import com.freundtech.minecraft.oneslotserver.extension.setSpectator
 import com.freundtech.minecraft.oneslotserver.util.*
-import java.nio.file.Files
 import java.nio.file.Paths
-import java.nio.file.StandardCopyOption
 import java.util.Date
 
-import org.bukkit.Bukkit
-import org.bukkit.GameMode
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.*
@@ -25,8 +23,10 @@ class PlayerListener : Listener {
     @EventHandler
     fun onPlayerLogin(event: PlayerLoginEvent) {
         val now = currentTime()
-        val playerInfo = event.player.playerInfo
+        val playerInfo = event.player.oneSlotServer
         val activePlayer = plugin.activePlayer
+
+        event.player.oneSlotServer.joinedAt = currentTime()
 
         // Reset time left
         if (playerInfo.firstJoin < now - plugin.pauseTime) {
@@ -34,35 +34,23 @@ class PlayerListener : Listener {
             playerInfo.timeLeft = plugin.playTime
         }
 
-        if (!event.player.isOp) {
-            if (playerInfo.timeLeft <= 0) {
-                val waitLeft = plugin.pauseTime - (now - playerInfo.firstJoin)
-                val date = Date(waitLeft * 1000)
+        if (playerInfo.timeLeft <= 0) {
+            val waitLeft = plugin.pauseTime - (now - playerInfo.firstJoin)
 
+            if (!event.player.hasPermission(PERMISSION_SPECTATE)) {
                 event.disallow(Result.KICK_OTHER,
-                        "You have no time left on this server. Please wait ${hoursWait.format(date)} more hours.")
-                return
+                        "You have no time left on this server. Please wait ${waitLeft.format(hoursFormat)} more hours.")
             }
+        } else if (activePlayer != null) {
+            val waitLeft = activePlayer.oneSlotServer.timeLeft - (now - activePlayer.oneSlotServer.joinedAt)
 
-            if (activePlayer != null) {
-                val waitLeft = activePlayer.playerInfo.timeLeft - (now - activePlayer.playerInfo.joinedAt)
-                val date = Date(waitLeft * 1000)
-
+            if (!event.player.hasPermission(PERMISSION_SPECTATE)) {
                 event.disallow(Result.KICK_FULL,
-                        "A person is already playing. Please wait ${minutesWait.format(date)} more minutes.")
-                return
+                        "A person is already playing. Please wait ${waitLeft.format(minutesFormat)} more minutes.")
             }
-        }
-
-        if (plugin.activePlayer == null) {
-            val playerFile = playerDataDir.resolve("${event.player.uniqueId}.dat")
-            val backupFile = playerDataDir.resolve("player.dat")
-
-            if (Files.exists(backupFile)) {
-                Files.copy(backupFile, playerFile, StandardCopyOption.REPLACE_EXISTING)
-            }
-
+        } else {
             plugin.activePlayer = event.player
+            event.player.loadFromSharedData()
         }
     }
 
@@ -70,27 +58,27 @@ class PlayerListener : Listener {
     fun onPlayerJoin(event: PlayerJoinEvent) {
         event.joinMessage = ""
 
-        val activeUuid = plugin.activePlayer?.uniqueId
+        if (plugin.activePlayer?.uniqueId == event.player.uniqueId) {
+            event.player.isSleepingIgnored = false
 
-        if (event.player.isOp && activeUuid != null && activeUuid != event.player.uniqueId) {
-            event.player.gameMode = GameMode.SPECTATOR
-            event.player.isSleepingIgnored = true
-        }
-
-        if (activeUuid == event.player.uniqueId) {
-            for (player in plugin.server.onlinePlayers) {
-                if (activeUuid != player.uniqueId) {
-                    plugin.activePlayer?.hidePlayer(plugin, player)
+            if (!event.player.hasPermission(PERMISSION_SEE_SPECTATORS)) {
+                plugin.server.onlinePlayers.filter {
+                    event.player.uniqueId != it.uniqueId
+                }.forEach {
+                    event.player.hidePlayer(plugin, it)
                 }
             }
 
-            event.player.isSleepingIgnored = false
-
-            plugin.activePlayer?.playerInfo?.timeLeft?.let {
-                Bukkit.broadcastMessage("Welcome to the one slot server.")
-                Bukkit.broadcastMessage("You have ${it / 60} minutes left to play.")
-                Bukkit.broadcastMessage("Read the full server rules here:")
-                Bukkit.broadcastMessage("https://redd.it/3j22hq")
+            event.player.apply {
+                sendMessage(arrayOf(
+                        "Welcome to the one slot server.",
+                        "You have ${this.oneSlotServer.timeLeft / 60} minutes left to play."
+                ))
+            }
+        } else if (event.player.hasPermission(PERMISSION_SPECTATE)) {
+            event.player.setSpectator()
+            if (plugin.activePlayer?.hasPermission(PERMISSION_SEE_SPECTATORS) == false) {
+                plugin.activePlayer?.hidePlayer(plugin, event.player)
             }
         }
     }
@@ -98,18 +86,11 @@ class PlayerListener : Listener {
     @EventHandler
     fun onPlayerQuit(event: PlayerQuitEvent) {
         event.quitMessage = ""
+
         if (plugin.activePlayer?.uniqueId == event.player.uniqueId) {
-            // Wait until player is saved to disk
-            plugin.server.scheduler.scheduleSyncDelayedTask(plugin) {
-                val playerFile = playerDataDir.resolve("${event.player.uniqueId}.dat")
-                val backupFile = playerDataDir.resolve("player.dat")
-
-                Files.copy(playerFile, backupFile, StandardCopyOption.REPLACE_EXISTING)
-
-                event.player.playerInfo.save()
-                plugin.activePlayer = null
-            }
-
+            event.player.saveToSharedData()
+            plugin.activePlayer = null
         }
+        event.player.oneSlotServer.save()
     }
 }
