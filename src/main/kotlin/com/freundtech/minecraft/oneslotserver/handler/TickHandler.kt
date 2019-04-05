@@ -17,11 +17,10 @@ class TickHandler : Runnable {
         var headerMessage = "No player playing"
 
         plugin.activePlayer?.let {
-            if (it.oneSlotServer.timeLeft - (now - it.oneSlotServer.joinedAt) <= 0) {
+            if (!it.oneSlotServer.hasTimeRemaining()) {
                 val waitLeft = (plugin.pauseTime - (now - it.oneSlotServer.firstJoin))
                 val kickMessage = "Time is up. You can play again in ${waitLeft.format(hoursFormat)} hours."
                 if (!it.hasPermission(PERMISSION_SPECTATE)) {
-
                     it.kickPlayer(kickMessage)
                 }
                 else {
@@ -32,7 +31,7 @@ class TickHandler : Runnable {
                 }
             }
             else {
-                val timeLeft = (it.oneSlotServer.timeLeft - (now - it.oneSlotServer.joinedAt))
+                val timeLeft = (it.oneSlotServer.timeLeft)
                 headerMessage = "${timeLeft.format(minutesFormat)} minutes left"
             }
         }

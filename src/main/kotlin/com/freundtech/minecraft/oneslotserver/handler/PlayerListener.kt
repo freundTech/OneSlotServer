@@ -28,13 +28,7 @@ class PlayerListener : Listener {
 
         event.player.oneSlotServer.joinedAt = currentTime()
 
-        // Reset time left
-        if (playerInfo.firstJoin < now - plugin.pauseTime) {
-            playerInfo.firstJoin = now
-            playerInfo.timeLeft = plugin.playTime
-        }
-
-        if (playerInfo.timeLeft <= 0) {
+        if (!playerInfo.hasTimeRemaining()) {
             val waitLeft = plugin.pauseTime - (now - playerInfo.firstJoin)
 
             if (!event.player.hasPermission(PERMISSION_SPECTATE)) {
@@ -42,7 +36,7 @@ class PlayerListener : Listener {
                         "You have no time left on this server. Please wait ${waitLeft.format(hoursFormat)} more hours.")
             }
         } else if (activePlayer != null) {
-            val waitLeft = activePlayer.oneSlotServer.timeLeft - (now - activePlayer.oneSlotServer.joinedAt)
+            val waitLeft = activePlayer.oneSlotServer.timeLeft
 
             if (!event.player.hasPermission(PERMISSION_SPECTATE)) {
                 event.disallow(Result.KICK_FULL,

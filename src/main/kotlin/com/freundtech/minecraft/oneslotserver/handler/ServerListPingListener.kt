@@ -25,7 +25,7 @@ class ServerListPingListener : Listener{
         }
 
         plugin.activePlayer?.let {
-            val waitLeft = (it.oneSlotServer.timeLeft - (currentTime() - it.oneSlotServer.joinedAt))
+            val waitLeft = it.oneSlotServer.timeLeft
 
             event.motd = "A player is currently playing. Please wait ${waitLeft.format(minutesFormat)} more minutes."
             event.setServerIcon(iconFull)

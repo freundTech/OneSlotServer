@@ -7,6 +7,8 @@ import com.freundtech.minecraft.oneslotserver.extension.saveToSharedData
 import com.freundtech.minecraft.oneslotserver.extension.setSpectator
 import com.freundtech.minecraft.oneslotserver.util.SPECTATE
 import com.freundtech.minecraft.oneslotserver.util.currentTime
+import com.freundtech.minecraft.oneslotserver.util.format
+import com.freundtech.minecraft.oneslotserver.util.hoursFormat
 import org.bukkit.GameMode
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
@@ -71,19 +73,18 @@ class CommandUnspectate : CommandExecutor {
             else -> return false
         }
 
-        if (!unsetSpectator(target)) {
+        target.oneSlotServer.joinedAt = currentTime()
+        if (!target.oneSlotServer.hasTimeRemaining()) {
+            val waitLeft = plugin.pauseTime - (currentTime() - target.oneSlotServer.firstJoin)
+            sender.sendMessage("You have no time left on this server. Please wait ${waitLeft.format(hoursFormat)} more hours.")
+        }
+        else if (!unsetSpectator(target)) {
             sender.sendMessage("A player is already playing")
         }
         return true
     }
 
     private fun unsetSpectator(player: Player): Boolean {
-        val now = currentTime()
-        if (player.oneSlotServer.firstJoin < now - plugin.pauseTime) {
-            player.oneSlotServer.firstJoin = now
-            player.oneSlotServer.timeLeft = plugin.playTime
-        }
-
         if (plugin.activePlayer == null) {
             plugin.activePlayer = player
             player.isSleepingIgnored = false

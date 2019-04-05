@@ -24,8 +24,8 @@ class OneSlotServer : JavaPlugin() {
             saveConfig()
         }
 
-    val playTime by config.delegate<Time>(PLAY_TIME)
-    val pauseTime by config.delegate<Time>(PAUSE_TIME)
+    val playTime by config.delegate<Time>(PLAY_TIME, 1800)
+    val pauseTime by config.delegate<Time>(PAUSE_TIME, 86400)
 
     val iconEmpty = ImageIO.read(getResource(ICON_EMPTY))
             ?: throw MissingResourceException("Couldn't find image $ICON_EMPTY", this::class.qualifiedName, ICON_EMPTY)
@@ -35,11 +35,6 @@ class OneSlotServer : JavaPlugin() {
 
     override fun onEnable() {
         instance = this
-
-        config.addDefault(PLAY_TIME, 1800)
-        config.addDefault(PAUSE_TIME, 86400)
-        config.options().copyDefaults(true)
-        this.saveConfig()
 
         server.pluginManager.registerEvents(PlayerListener(), this)
         server.pluginManager.registerEvents(ServerListPingListener(), this)

@@ -21,11 +21,22 @@ class PlayerInfo(uuid: UUID) {
 
     var joinedAt = currentTime()
     var timeLeft = userConfig.getLong("time_left", plugin.playTime)
+        get() = field - (currentTime() - joinedAt)
     var firstJoin by userConfig.delegate("first_join", joinedAt)
 
     fun save() {
-        userConfig.set("time_left", this.timeLeft - (currentTime() - this.joinedAt))
+        userConfig.set("time_left", this.timeLeft)
         userConfig.save(configPath.toFile())
+    }
+
+    fun hasTimeRemaining(): Boolean {
+        val now = currentTime()
+        if (this.firstJoin < now - OneSlotServer.instance.pauseTime) {
+            this.firstJoin = now
+            this.timeLeft = OneSlotServer.instance.playTime
+        }
+
+        return this.timeLeft > 0
     }
 }
 
@@ -38,6 +49,7 @@ fun Player.setSpectator() {
     this.gameMode = GameMode.SPECTATOR
     this.isSleepingIgnored = true
 }
+
 
 fun Player.saveToSharedData() {
     this.saveData()
