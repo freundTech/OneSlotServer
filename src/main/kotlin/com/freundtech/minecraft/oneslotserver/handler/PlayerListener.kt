@@ -15,8 +15,6 @@ import org.bukkit.event.player.*
 import org.bukkit.event.player.PlayerLoginEvent.Result
 import java.nio.file.Path
 
-val playerDataDir: Path = Paths.get("world", "playerdata")
-
 class PlayerListener : Listener {
     private val plugin = OneSlotServer.instance
 

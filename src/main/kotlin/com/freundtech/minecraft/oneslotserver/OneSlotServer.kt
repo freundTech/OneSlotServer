@@ -3,6 +3,7 @@ package com.freundtech.minecraft.oneslotserver
 import com.freundtech.minecraft.oneslotserver.extension.oneSlotServer
 import com.freundtech.minecraft.oneslotserver.handler.*
 import com.freundtech.minecraft.oneslotserver.util.*
+import org.bukkit.GameRule
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.*
@@ -38,6 +39,7 @@ class OneSlotServer : JavaPlugin() {
 
         server.pluginManager.registerEvents(PlayerListener(), this)
         server.pluginManager.registerEvents(ServerListPingListener(), this)
+        server.pluginManager.registerEvents(AdvancementListener(), this)
         server.scheduler.scheduleSyncRepeatingTask(this, TickHandler(), 20, 20)
 
         getCommand(SPECTATE)!!.setExecutor(CommandSpectate())

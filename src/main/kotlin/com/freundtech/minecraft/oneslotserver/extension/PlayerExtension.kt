@@ -1,17 +1,24 @@
 package com.freundtech.minecraft.oneslotserver.extension
 
 import com.freundtech.minecraft.oneslotserver.OneSlotServer
-import com.freundtech.minecraft.oneslotserver.handler.playerDataDir
 import com.freundtech.minecraft.oneslotserver.util.currentTime
 import com.freundtech.minecraft.oneslotserver.util.delegate
+import com.freundtech.minecraft.oneslotserver.util.getPrivateField
 import org.bukkit.GameMode
+import org.bukkit.World
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.Player
+import org.bukkit.scheduler.BukkitRunnable
 import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
+import java.nio.file.StandardCopyOption.*
 import java.util.*
 import kotlin.collections.HashMap
+
+val playerDataDir: Path = Paths.get("world", "playerdata")
+val advancementDir: Path = Paths.get("world", "advancements")
 
 class PlayerInfo(uuid: UUID) {
     private val plugin = OneSlotServer.instance
@@ -54,23 +61,26 @@ fun Player.setSpectator() {
 fun Player.saveToSharedData() {
     this.saveData()
 
-    val playerFile = playerDataDir.resolve("${this.uniqueId}.dat")
-    val backupFile = playerDataDir.resolve("player.dat")
-
-    Files.copy(playerFile, backupFile, StandardCopyOption.REPLACE_EXISTING)
+    copyFile(playerDataDir, "$uniqueId.dat", "player.dat")
 
     this.oneSlotServer.save()
     playerCache.remove(this.uniqueId)
 }
 
 fun Player.loadFromSharedData() {
-    val playerFile = playerDataDir.resolve("${this.uniqueId}.dat")
-    val backupFile = playerDataDir.resolve("player.dat")
-
-    if (Files.exists(backupFile)) {
-        Files.copy(backupFile, playerFile, StandardCopyOption.REPLACE_EXISTING)
-    }
+    copyFile(playerDataDir, "player.dat", "$uniqueId.dat")
 
     this.gameMode = GameMode.SURVIVAL
     this.loadData()
+}
+
+fun copyFile(path: Path, source: String, target: String): Boolean {
+    val sourceFile = path.resolve(source)
+    val targetFile = path.resolve(target)
+    if (!Files.exists(sourceFile)) {
+        return false
+    }
+
+    Files.copy(sourceFile, targetFile, REPLACE_EXISTING)
+    return true
 }
