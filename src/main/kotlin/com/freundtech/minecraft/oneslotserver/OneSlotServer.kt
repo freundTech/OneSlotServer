@@ -1,9 +1,15 @@
 package com.freundtech.minecraft.oneslotserver
 
 import com.freundtech.minecraft.oneslotserver.extension.oneSlotServer
-import com.freundtech.minecraft.oneslotserver.handler.*
+import com.freundtech.minecraft.oneslotserver.handler.command.*
+import com.freundtech.minecraft.oneslotserver.handler.event.AdvancementListener
+import com.freundtech.minecraft.oneslotserver.handler.event.PlayerListener
+import com.freundtech.minecraft.oneslotserver.handler.event.ServerListPingListener
+import com.freundtech.minecraft.oneslotserver.handler.tick.TickHandler
 import com.freundtech.minecraft.oneslotserver.util.*
-import org.bukkit.GameRule
+import com.kizitonwose.time.Interval
+import com.kizitonwose.time.Second
+import com.kizitonwose.time.seconds
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.*
@@ -25,8 +31,8 @@ class OneSlotServer : JavaPlugin() {
             saveConfig()
         }
 
-    val playTime by config.delegate<Time>(PLAY_TIME, 1800)
-    val pauseTime by config.delegate<Time>(PAUSE_TIME, 86400)
+    var playTime by config.delegateTime(PLAY_TIME, 1800.seconds)
+    var waitTime by config.delegateTime(WAIT_TIME, 86400.seconds)
 
     val iconEmpty = ImageIO.read(getResource(ICON_EMPTY))
             ?: throw MissingResourceException("Couldn't find image $ICON_EMPTY", this::class.qualifiedName, ICON_EMPTY)
@@ -37,13 +43,16 @@ class OneSlotServer : JavaPlugin() {
     override fun onEnable() {
         instance = this
 
-        server.pluginManager.registerEvents(PlayerListener(), this)
-        server.pluginManager.registerEvents(ServerListPingListener(), this)
-        server.pluginManager.registerEvents(AdvancementListener(), this)
-        server.scheduler.scheduleSyncRepeatingTask(this, TickHandler(), 20, 20)
+        server.pluginManager.registerEvents(PlayerListener(this), this)
+        server.pluginManager.registerEvents(ServerListPingListener(this), this)
+        server.pluginManager.registerEvents(AdvancementListener(this), this)
+        server.scheduler.scheduleSyncRepeatingTask(this, TickHandler(this), 20, 20)
 
-        getCommand(SPECTATE)!!.setExecutor(CommandSpectate())
-        getCommand(UNSPECTATE)!!.setExecutor(CommandUnspectate())
+        getCommand(SPECTATE)!!.setExecutor(SpectateCommand(this))
+        getCommand(UNSPECTATE)!!.setExecutor(UnspectateCommand(this))
+        getCommand(SET_PLAY_TIME)!!.setExecutor(SetPlayTimeCommand(this))
+        getCommand(SET_WAIT_TIME)!!.setExecutor(SetWaitTimeCommand(this))
+        getCommand(SET_TIME_LEFT)!!.setExecutor(SetTimeLeftCommand(this))
 
         val uuid = config.getString(ACTIVE_PLAYER)
         if (uuid != null) {

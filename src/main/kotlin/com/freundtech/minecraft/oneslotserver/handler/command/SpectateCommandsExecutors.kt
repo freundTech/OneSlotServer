@@ -1,23 +1,15 @@
-package com.freundtech.minecraft.oneslotserver.handler
+package com.freundtech.minecraft.oneslotserver.handler.command
 
 import com.freundtech.minecraft.oneslotserver.OneSlotServer
-import com.freundtech.minecraft.oneslotserver.extension.loadFromSharedData
-import com.freundtech.minecraft.oneslotserver.extension.oneSlotServer
-import com.freundtech.minecraft.oneslotserver.extension.saveToSharedData
-import com.freundtech.minecraft.oneslotserver.extension.setSpectator
+import com.freundtech.minecraft.oneslotserver.extension.*
 import com.freundtech.minecraft.oneslotserver.util.SPECTATE
 import com.freundtech.minecraft.oneslotserver.util.currentTime
-import com.freundtech.minecraft.oneslotserver.util.format
-import com.freundtech.minecraft.oneslotserver.util.hoursFormat
-import org.bukkit.GameMode
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
-class CommandSpectate : CommandExecutor {
-    private val plugin = OneSlotServer.instance
-
+class SpectateCommand(private val plugin: OneSlotServer) : CommandExecutor {
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
         assert(label.equals(SPECTATE, ignoreCase = true))
 
@@ -54,9 +46,7 @@ class CommandSpectate : CommandExecutor {
     }
 }
 
-class CommandUnspectate : CommandExecutor {
-    private val plugin = OneSlotServer.instance
-
+class UnspectateCommand(private val plugin: OneSlotServer) : CommandExecutor {
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
         val target = when (args.size) {
             0 -> if (sender is Player) sender else run {
@@ -75,8 +65,8 @@ class CommandUnspectate : CommandExecutor {
 
         target.oneSlotServer.joinedAt = currentTime()
         if (!target.oneSlotServer.hasTimeRemaining()) {
-            val waitLeft = plugin.pauseTime - (currentTime() - target.oneSlotServer.firstJoin)
-            sender.sendMessage("You have no time left on this server. Please wait ${waitLeft.format(hoursFormat)} more hours.")
+            val waitLeft = plugin.waitTime - (currentTime() - target.oneSlotServer.firstJoin)
+            sender.sendMessage("You have no time left on this server. Please wait ${waitLeft.format()}.")
         }
         else if (!unsetSpectator(target)) {
             sender.sendMessage("A player is already playing")

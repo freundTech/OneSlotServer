@@ -14,3 +14,6 @@ eclipse/
 
 # Gradle wrapper
 .gradle
+
+# Passwords
+scripts/.private.sh

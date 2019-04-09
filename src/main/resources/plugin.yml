@@ -1,19 +1,29 @@
 name: OneSlotServer
-version: ${project.version}
+version: "1.0"
 main: com.freundtech.minecraft.oneslotserver.OneSlotServer
-api-version: 1.13
+api-version: "1.13"
 authors: [freundTech]
 commands:
   spectate:
     description: Go into spectator mode
     usage: /spectate [player]
     permission: oneslotserver.spectate
-    permission-message: You don't have permission to do this
   unspectate:
     description: Leave spectator mode
     usage: /unspectate [player]
     permission: oneslotserver.spectate
-    permission-message: You don't have permission to do this
+  setplaytime:
+    description: Set the allowed play time
+    usage: /setplaytime [seconds]
+    permission: oneslotserver.time.global
+  setwaittime:
+    description: Set the enforces wait time
+    usage: /setwaittime [seconds]
+    permission: oneslotserver.time.global
+  settimeleft:
+    description: Set the time left for the current player
+    usage: /settimeleft [seconds]
+    permission: oneslotserver.time.player
 permissions:
   oneslotserver.spectate:
     description: Allows a player to spectate
@@ -21,3 +31,14 @@ permissions:
   oneslotserver.seespectators:
     description: Allows a player to see spectators in the tab list
     default: op
+  oneslotserver.time.player:
+    description: Allows players to set remaining and wait time for players
+    default: op
+  oneslotserver.time.global:
+    description: Allows players to set play and wait time globally
+    default: op
+  oneslotserver.time:
+    default: op
+    children:
+      - oneslotserver.settime.player
+      - oneslotserver.settime.global

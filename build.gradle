@@ -7,16 +7,16 @@ group 'com.freundtech.minecraft'
 version '1.0-SNAPSHOT'
 
 repositories {
-    maven {
-        url "https://hub.spigotmc.org/nexus/content/groups/public/"
-    }
+    maven { url "https://hub.spigotmc.org/nexus/content/groups/public/" }
     mavenCentral()
+    maven { url "https://jitpack.io" }
 }
 
 dependencies {
     implementation "org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation "org.jetbrains.kotlin:kotlin-reflect"
+    implementation "com.github.kizitonwose.time:time:1.0.2"
     testImplementation "org.jetbrains.kotlin:kotlin-test"
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit"
 }

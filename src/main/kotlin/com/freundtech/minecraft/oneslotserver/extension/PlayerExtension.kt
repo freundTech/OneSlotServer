@@ -1,18 +1,16 @@
 package com.freundtech.minecraft.oneslotserver.extension
 
 import com.freundtech.minecraft.oneslotserver.OneSlotServer
-import com.freundtech.minecraft.oneslotserver.util.currentTime
 import com.freundtech.minecraft.oneslotserver.util.delegate
-import com.freundtech.minecraft.oneslotserver.util.getPrivateField
+import com.freundtech.minecraft.oneslotserver.util.currentTime
+import com.freundtech.minecraft.oneslotserver.util.delegateTime
+import com.kizitonwose.time.*
 import org.bukkit.GameMode
-import org.bukkit.World
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.Player
-import org.bukkit.scheduler.BukkitRunnable
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.nio.file.StandardCopyOption
 import java.nio.file.StandardCopyOption.*
 import java.util.*
 import kotlin.collections.HashMap
@@ -27,23 +25,26 @@ class PlayerInfo(uuid: UUID) {
     private val userConfig = YamlConfiguration.loadConfiguration(configPath.toFile())
 
     var joinedAt = currentTime()
-    var timeLeft = userConfig.getLong("time_left", plugin.playTime)
+    var timeLeft = userConfig.getTime("time_left", plugin.playTime)
         get() = field - (currentTime() - joinedAt)
-    var firstJoin by userConfig.delegate("first_join", joinedAt)
+        set(value) {
+            field = currentTime() + value - joinedAt
+        }
+    var firstJoin by userConfig.delegateTime("first_join", joinedAt)
 
     fun save() {
-        userConfig.set("time_left", this.timeLeft)
+        userConfig.set("time_left", this.timeLeft.inMilliseconds.longValue)
         userConfig.save(configPath.toFile())
     }
 
     fun hasTimeRemaining(): Boolean {
         val now = currentTime()
-        if (this.firstJoin < now - OneSlotServer.instance.pauseTime) {
+        if (this.firstJoin < now - plugin.waitTime) {
             this.firstJoin = now
-            this.timeLeft = OneSlotServer.instance.playTime
+            this.timeLeft = plugin.playTime
         }
 
-        return this.timeLeft > 0
+        return this.timeLeft > 0.milliseconds
     }
 }
 

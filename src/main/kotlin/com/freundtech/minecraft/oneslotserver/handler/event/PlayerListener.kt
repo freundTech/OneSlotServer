@@ -1,23 +1,15 @@
-package com.freundtech.minecraft.oneslotserver.handler
+package com.freundtech.minecraft.oneslotserver.handler.event
 
 import com.freundtech.minecraft.oneslotserver.OneSlotServer
-import com.freundtech.minecraft.oneslotserver.extension.loadFromSharedData
-import com.freundtech.minecraft.oneslotserver.extension.oneSlotServer
-import com.freundtech.minecraft.oneslotserver.extension.saveToSharedData
-import com.freundtech.minecraft.oneslotserver.extension.setSpectator
+import com.freundtech.minecraft.oneslotserver.extension.*
 import com.freundtech.minecraft.oneslotserver.util.*
-import java.nio.file.Paths
-import java.util.Date
 
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.*
 import org.bukkit.event.player.PlayerLoginEvent.Result
-import java.nio.file.Path
 
-class PlayerListener : Listener {
-    private val plugin = OneSlotServer.instance
-
+class PlayerListener(private val plugin: OneSlotServer) : Listener {
     @EventHandler
     fun onPlayerLogin(event: PlayerLoginEvent) {
         val now = currentTime()
@@ -27,18 +19,18 @@ class PlayerListener : Listener {
         event.player.oneSlotServer.joinedAt = currentTime()
 
         if (!playerInfo.hasTimeRemaining()) {
-            val waitLeft = plugin.pauseTime - (now - playerInfo.firstJoin)
+            val waitLeft = plugin.waitTime - (now - playerInfo.firstJoin)
 
             if (!event.player.hasPermission(PERMISSION_SPECTATE)) {
                 event.disallow(Result.KICK_OTHER,
-                        "You have no time left on this server. Please wait ${waitLeft.format(hoursFormat)} more hours.")
+                        "You have no time left on this server. Please wait ${waitLeft.format()}.")
             }
         } else if (activePlayer != null) {
             val waitLeft = activePlayer.oneSlotServer.timeLeft
 
             if (!event.player.hasPermission(PERMISSION_SPECTATE)) {
                 event.disallow(Result.KICK_FULL,
-                        "A person is already playing. Please wait ${waitLeft.format(minutesFormat)} more minutes.")
+                        "A person is already playing. Please wait ${waitLeft.format()}.")
             }
         } else {
             plugin.activePlayer = event.player
@@ -64,7 +56,7 @@ class PlayerListener : Listener {
             event.player.apply {
                 sendMessage(arrayOf(
                         "Welcome to the one slot server.",
-                        "You have ${this.oneSlotServer.timeLeft / 60} minutes left to play."
+                        "You have ${oneSlotServer.timeLeft.format()} left to play."
                 ))
             }
         } else if (event.player.hasPermission(PERMISSION_SPECTATE)) {
