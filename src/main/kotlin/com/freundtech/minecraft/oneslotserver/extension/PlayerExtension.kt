@@ -6,6 +6,7 @@ import com.freundtech.minecraft.oneslotserver.util.currentTime
 import com.freundtech.minecraft.oneslotserver.util.delegateTime
 import com.kizitonwose.time.*
 import org.bukkit.GameMode
+import org.bukkit.OfflinePlayer
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.Player
 import java.nio.file.Files
@@ -37,6 +38,10 @@ class PlayerInfo(uuid: UUID) {
         userConfig.save(configPath.toFile())
     }
 
+    fun join() {
+        joinedAt = currentTime()
+    }
+
     fun hasTimeRemaining(): Boolean {
         val now = currentTime()
         if (this.firstJoin < now - plugin.waitTime) {
@@ -51,6 +56,9 @@ class PlayerInfo(uuid: UUID) {
 val playerCache = HashMap<UUID, PlayerInfo>()
 
 val Player.oneSlotServer: PlayerInfo
+    get() = playerCache.getOrPut(uniqueId) { PlayerInfo(uniqueId) }
+
+val OfflinePlayer.oneSlotServer: PlayerInfo
     get() = playerCache.getOrPut(uniqueId) { PlayerInfo(uniqueId) }
 
 fun Player.setSpectator() {

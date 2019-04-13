@@ -51,7 +51,7 @@ class SetTimeLeftCommand(private val plugin: OneSlotServer) : CommandExecutor {
                 sender.sendMessage("Player $playerName is isn't known to this server")
                 return false
             }
-            PlayerInfo(player.uniqueId).also { it.timeLeft = time }.save()
+            player.oneSlotServer.also { it.timeLeft = time }.save()
             sender.sendMessage("Set time left to $time for $playerName")
         }
         return true

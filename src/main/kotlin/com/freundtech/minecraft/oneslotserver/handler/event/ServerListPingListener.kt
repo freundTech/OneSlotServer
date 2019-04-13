@@ -17,7 +17,7 @@ class ServerListPingListener(private val plugin: OneSlotServer) : Listener{
         event.maxPlayers = 1
 
         event.removeAll { player -> Boolean
-            player.uniqueId != plugin.activePlayer?.player?.uniqueId
+            player.uniqueId != plugin.activePlayer?.uniqueId
         }
 
         plugin.activePlayer?.let {

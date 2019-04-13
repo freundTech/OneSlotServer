@@ -63,7 +63,7 @@ class UnspectateCommand(private val plugin: OneSlotServer) : CommandExecutor {
             else -> return false
         }
 
-        target.oneSlotServer.joinedAt = currentTime()
+        target.oneSlotServer.join()
         if (!target.oneSlotServer.hasTimeRemaining()) {
             val waitLeft = plugin.waitTime - (currentTime() - target.oneSlotServer.firstJoin)
             sender.sendMessage("You have no time left on this server. Please wait ${waitLeft.format()}.")

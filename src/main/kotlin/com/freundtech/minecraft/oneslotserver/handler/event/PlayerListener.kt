@@ -16,7 +16,7 @@ class PlayerListener(private val plugin: OneSlotServer) : Listener {
         val playerInfo = event.player.oneSlotServer
         val activePlayer = plugin.activePlayer
 
-        event.player.oneSlotServer.joinedAt = currentTime()
+        event.player.oneSlotServer.join()
 
         if (!playerInfo.hasTimeRemaining()) {
             val waitLeft = plugin.waitTime - (now - playerInfo.firstJoin)
