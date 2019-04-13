@@ -32,9 +32,11 @@ class PlayerListener(private val plugin: OneSlotServer) : Listener {
                 event.disallow(Result.KICK_FULL,
                         "A person is already playing. Please wait ${waitLeft.format()}.")
             }
-        } else {
+        }
+        if (event.result == Result.ALLOWED) {
             plugin.activePlayer = event.player
             event.player.loadFromSharedData()
+
         }
     }
 
