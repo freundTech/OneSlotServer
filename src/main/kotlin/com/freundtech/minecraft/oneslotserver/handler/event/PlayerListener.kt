@@ -33,7 +33,7 @@ class PlayerListener(private val plugin: OneSlotServer) : Listener {
                         "A person is already playing. Please wait ${waitLeft.format()}.")
             }
         }
-        if (event.result == Result.ALLOWED) {
+        else if (event.result == Result.ALLOWED) {
             plugin.activePlayer = event.player
             event.player.loadFromSharedData()
 
